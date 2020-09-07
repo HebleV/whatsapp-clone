@@ -54,7 +54,7 @@ const pusher = new Pusher({
 app.use(express.json());
 
 //DB config
-const connection_url = 'mongodb+srv://admin:###@cluster0.dx8k2.mongodb.net/whatsappdb?retryWrites=true&w=majority';
+const connection_url = 'mongodb+srv://admin:###@cluster0.dx8k2.mongodb.net/ENV.DBNAME?retryWrites=true&w=majority';
 mongoose.connect(connection_url, {
     useCreateIndex: true,
     useNewUrlParser: true,
