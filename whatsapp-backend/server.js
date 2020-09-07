@@ -3,6 +3,7 @@ import express from 'express';
 import mongoose from 'mongoose';
 import Messages from './dbMessages.js';
 import Pusher from 'pusher';
+import cors from 'cors';
 //app config
 const app = express();
 const port = process.env.PORT || 9000;
@@ -13,11 +14,12 @@ const pusher = new Pusher({
     key: 'd374b5213eb327c9ae41',
     secret: '4a28750efe511549512e',
     cluster: 'ap2',
-    encrypted: true
+    useTLS: true,
   });
 
   //middleware
   app.use(express.json());
+  app.use(cors()); // Enabling cors
 
   app.use((req, res, next) => {
       res.setHeader("Access-Control-Allow-Origin", "*");
