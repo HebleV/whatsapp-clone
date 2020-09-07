@@ -2,16 +2,55 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import Messages from './dbMessages.js';
-
+import Pusher from 'pusher';
 //app config
 const app = express();
 const port = process.env.PORT || 9000;
+
+//For real time experience
+const pusher = new Pusher({
+    appId: '1068595',
+    key: 'd374b5213eb327c9ae41',
+    secret: '4a28750efe511549512e',
+    cluster: 'ap2',
+    encrypted: true
+  });
+
+  //middleware
+  app.use(express.json());
+
+  app.use((req, res, next) => {
+      res.setHeader("Access-Control-Allow-Origin", "*");
+      res.setHeader("Access-Control-Allow-Headers", "*");
+      next();
+  })
+
+  //Creating mongoose changestream
+  const db = mongoose.connection;
+  db.once("open", ()=> {
+      console.log("DB connected");
+      const msgCollection = db.collection('messagecontents');
+      const changeStream = msgCollection.watch();
+      changeStream.on('change', (change) => {
+        if(change.operationType === 'insert') {
+            const messageDetails = change.fullDocument;
+            pusher.trigger('messages', 'inserted', 
+                {
+                    name: messageDetails.name,
+                    message: messageDetails.message,
+                }
+            );
+        } else {
+            console.log('Error triggering pusher')
+        }
+      })
+  })
 
 //middleware
 app.use(express.json());
 
 //DB config
-const connection_url = 'mongodb+srv://admin:******@cluster0.dx8k2.mongodb.net/*****?retryWrites=true&w=majority';
+const connection_url = 'mongodb+srv://admin:zIOkGSgvghhaI4P7@cluster0.dx8k2.mongodb.net/whatsappdb?retryWrites=true&w=majority';
 mongoose.connect(connection_url, {
     useCreateIndex: true,
     useNewUrlParser: true,
@@ -20,6 +59,17 @@ mongoose.connect(connection_url, {
 
 //app routes
 app.get('/', (req, res) => res.status(200).send('hello world'));
+
+app.get('/messages/sync', (req, res) => {
+    
+    Messages.find((err, data) => {
+        if(err) {
+            res.status(500).send(err)
+        } else {
+            res.status(200).send(data)
+        }
+    })
+})
 
 app.post('/messages/new', (req, res) => {
     const dbMessage = req.body;
