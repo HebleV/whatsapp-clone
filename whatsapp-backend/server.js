@@ -11,8 +11,8 @@ const port = process.env.PORT || 9000;
 //For real time experience
 const pusher = new Pusher({
     appId: '1068595',
-    key: 'd374b5213eb327c9ae41',
-    secret: '4a28750efe511549512e',
+    key: '###',
+    secret: '###',
     cluster: 'ap2',
     useTLS: true,
   });
@@ -40,6 +40,8 @@ const pusher = new Pusher({
                 {
                     name: messageDetails.name,
                     message: messageDetails.message,
+                    timestamp: messageDetails.timestamp,
+                    received: messageDetails.received,
                 }
             );
         } else {
@@ -52,7 +54,7 @@ const pusher = new Pusher({
 app.use(express.json());
 
 //DB config
-const connection_url = 'mongodb+srv://admin:zIOkGSgvghhaI4P7@cluster0.dx8k2.mongodb.net/whatsappdb?retryWrites=true&w=majority';
+const connection_url = 'mongodb+srv://admin:###@cluster0.dx8k2.mongodb.net/whatsappdb?retryWrites=true&w=majority';
 mongoose.connect(connection_url, {
     useCreateIndex: true,
     useNewUrlParser: true,
